@@ -1,5 +1,10 @@
 # Sylamer
-  Fast assessment of microRNA binding and siRNA off-target effects from expression data
+  Fast assessment of microRNA binding and siRNA off-target effects from expression data.  
+  Stijn van Dongen, Cei Abreu-Goodger & Anton J. Enright; Nature Methods(2008),
+  PMID: [18978784](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2635553/)
+
+  If you have questions or comments about this program please send a message
+  to aje39 at cam dot ac dot uk (science) or stijn at sanger dot ac dot uk (code).
 
 # Installation
   You'll need to have GSL (Gnu Scientific Library) installed on your system,
@@ -35,8 +40,8 @@
   PostScript (sylamer.ps), text format (sylamer.txt) and as a UNIX manual page
   (troff format, sylamer.1).
 
-     sylamer --help or sylamer -h gives a synopsis of available options.
+  `sylamer --help or sylamer -h`
+     
+  gives a synopsis of available options.
 
-  If you have questions or comments about this program please send a message
-  to stijn at sanger dot ac dot uk .
 
