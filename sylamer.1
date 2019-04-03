@@ -1,0 +1,1075 @@
+.\" Copyright (c) 18 Stijn van Dongen and Cei Abreu-Goodger
+.TH "sylamer" 1 "5 Nov 18" "sylamer 18-131" "USER COMMANDS "
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+sylamer \- fast computation of word biases in ranked DNA sequences
+.SH SYNOPSIS
+
+The sylamer program computes P-values associated with small word occurrences
+in a ranked sequence repository, enabling the discovery and assessment of
+enrichment and depletion patterns\&. In its main mode of invocation it
+accepts a sequence file in FASTA format, a file containing ranked
+identifiers, a word length\ \&\fBk\fP, a step size\ \&\fBS\fP, and optionally a file
+containing a list of words of length\ \&\fBk\fP (see \fBEXAMPLES\fP)\&. If no
+word file is specified sylamer will construct the full list of words of
+length\ \&\fBk\fP\&. The maximum word length currently supported is\ \&15\&.
+
+With these parameters, the program will output cumulative hypergeometric
+P-values for each word, for successive leading windows of the ranked list of
+identifiers\&. Each window starts from the beginning of the ranked list,
+and encompasses the previous window as well as incorporating the
+next\ \&\fBS\fP sequences from the ranked list\&.
+The model can optionally correct for composition biases using a Markov model
+on any smaller word size (see below)\&.
+It is possible to select window sizes such that each window
+has the same approximate increment of nucleotides (rather than a fixed number of
+sequences) compared to the previous
+window\&. This is not important to the final analysis however, as explained
+under \fB-grow-times\fP\&.
+
+Three important parameters are \fB-fasta\fP, \fB-universe\fP,
+and \fB-subset\fP\&. The first is required, and specifies the
+sequence repository to be read\&. The latter two are mutually exclusive\&.
+In the first case, the option specifies a file containing a comprehensive
+list of ranked identifiers\&. Any sequence in the repository for which its
+identifier is not found in this list is purged from the repository\&. When
+\fB-subset\fP is used, nothing is removed from the repository\&. The
+entire repository, including sequences not present in the subset, serves as
+the background\&. In both cases, an identifier for which no sequence is found
+is purged\&. In the text below, for each of the two cases, the resulting set
+of sequences is alternatively called the \fIsequence universe\fP, the
+\fIbackground\fP, or simply the \fIsequence repository\fP\&.
+
+The \fB-subset\fP option can be used to analyze a set of sequences that
+are not ranked, relative to a larger background (specified with the
+\fB-fasta\fP option), simply by making it use a single window\&.
+Refer to the \fBEXAMPLES\fP section for a brief discussion
+of the different ways in which sylamer can be invoked\&.
+
+The program has many options that control its behaviour\&. Crucially, it can
+correct for small words composition biases using a Markov model (\fB-m\fP)\&.
+It has further options to control window
+granularity, to perform random trials on shuffled sequences, to consider
+both strands, to change output format, and more\&.
+
+The most common use for sylamer is to plot enrichment and depletion values
+as log-transformed P-values on the positive and negative Y-axes,
+respectively [1]\&. This landscape plot represents the full set of
+unfiltered results in an intuitive way\&. To this end the default sylamer
+output is in a table format where rows represent words and columns represent
+(consecutive and leading) windows\&. Each cell contains a log-transformed and
+sign-adjusted hypergeometric P-value\&. The P-value is the smallest of the
+overrepresentation and underrepresentation P-values\&. If it is the
+overrepresentation P-value then the absolute value of the log-transform is
+taken (sign-adjustment)\&. The program is shipped with an R-script that reads
+this table output and generates the plot\&.
+
+\fBNOTE\fP
+.br
+The first row of the table represents a list of column headers\&. Each column
+represents a particular bin, and the header for that column contains the
+size of that bin (when using nested bins) or the cumulative size of all bins
+so far (when using stepwise bins)\&. The size of a bin is the number of
+sequences contained within it\&. This information should be used to find
+the location on the x-axis where the values for each bin should be plotted\&.
+
+In order to avoid overwhelming the drawing code with data, it is possible to
+output only the N most signficant results for overrepresented and
+underrepresented words respectively\&. This is achieved using the
+\fB-tt\fP option\&.
+
+By default secondary occurrences of simple 1-repeats and 2-repeats are ignored\&. This can be
+turned off using \fB--r2-off\fP\&.
+
+The alphabet accepted by the program is \fCA, C, G, T, U, N, X\fP\&. The bases
+\fCT\fP and \fCU\fP are treated as equivalent\&. In the output only \fCT\fP\&'s are
+reported\&. Any base not in the alphabet will lead to a message reporting the
+number of unrecognized characters in the relevant sequence, unless the
+option \fB--alien-ok\fP is used\&. The program transforms lowercase
+characters to uppercase and in the output always uses uppercase\&.
+
+Section \fBDESCRIPTION\fP contains more information\&. Refer
+to [1] for an in-depth description of how sylamer works,
+and please cite [1] if you use it in scientific publications\&.
+.SH DESCRIPTION
+
+The sylamer program computes P-values associated with small word occurrences
+in a sequence repository\&. In each separate run the word size is fixed, as
+specified with the \fB-k\fP option\&. By default this value is six\&. The
+program computes both cumulative hypergeometric and binomial P-values\&.
+Hypergeometric P-values are generally considered to be more accurate and
+have nice symmetry properties [1]\&.
+
+In many cases, the output is most useful when plotted as lines of
+log-transformed P-values\&. The program is shipped with an R-script that provides a
+convenient wrapper implementing this functionality\&.
+
+P-values are computed for each word separately by looking at the number of
+its occurrences in a given window and assessing it relative to the total
+number of counts in the entire sequence repository (called the background),
+using a cumulative hypergeometric model\&.
+
+The cumulative hypergeometric model (which measures probabilities when
+drawing without replacement) requires four parameters\&. These are: the
+universe size U (the number of balls in a vase), the number of instances
+of type I, say B (the number of black balls), the sample size (the number of
+balls drawn from the vase), say S, and the number of instances in the sample of
+type I (the number of black balls in the sample), say b\&.
+Given these parameters we compute the probability of drawing at
+least b black balls under the model where a sample of size S is randomly
+drawn from a universe of size U of which B balls are black\&. Additionally,
+the probability of drawing at most b black balls is computed, under the same
+model\&. The first is an enrichment P-value, the second a depletion P-value\&.
+The smallest of these is reported\&.
+
+When the program runs, each pair of window and word it considers specifies a new
+cumulative hypergeometric model, where each new window defines a new sample\&.
+In this model the universe size is by default the total number of words of
+length\ \&\fBk\fP in the background and does not vary across words or windows\&. The
+sample size is the number of words of length\ \&\fBk\fP in the window\&. This is the
+same for all words in a given window\&. The number of type I instances for a
+given word\ \&\fBw\fP in the background is the number of times \fBw\fP\ \&occurs in the
+background\&. This number depends on\ \&\fBw\fP only\&. The number of type I instances
+in the sample for\ \&\fBw\fP is the number of times that \fBw\fP\ \&occurs in a given
+window\&.
+
+It should be noted that an enrichment hypergeometric P-value in a leading
+bin of a sequence set for a given word is exactly the hypergeometric
+depletion P-value for that word for the complement trailing bin, as a result
+of the properties of drawing without replacement\&.
+.SH OPTIONS
+
+.ZI 2m "\fB-k\fP <int> (\fIword length K\fP)"
+\&
+.br
+The word length to use\&. By default this has value\ \&6\&.
+If either \fB-words\fP or \fB-read-expected\fP is used,
+the program will check that the word size found in the file argument
+agrees with this option\&. In particular, if the word file contains
+words of any length other than\ \&6, it is necessary to specify
+the same word length using this option\&.
+.in -2m
+
+.ZI 2m "\fB-fasta\fP <fname> (\fIfasta file\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-universe\fP <fname> (\fIfile containing rankekd universe IDs\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-subset\fP <fname> (\fIfile containing ranked subset IDs\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-o\fP <fname> (\fIresult file\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options are the primary input and output options\&. In order to specify
+STDIN or STDOUT for any of them, use a single hyphen (-)\&.
+
+The \fB-fasta\fP option is required, and should specify a file in FASTA
+format containing DNA or RNA sequences\&. Either \fB-universe\fP or
+\fB-subset\fP should be given\&. In both cases, the argument specifies the
+name of a file containing a single identifier per line\&. Any identifier not
+present in the FASTA file is disregarded\&. Then, with \fB-subset\fP, the
+sequences in the subset thus specified will be analyzed relative to the
+entire set of sequences in the FASTA file\&. This primarily means that the
+background counts are derived from the FASTA file, and that the analysis
+only considers the subset\&.
+
+With \fB-universe\fP the sequences from the FASTA file will be purged so
+that they only include identifiers found in the universe file\&. This should
+preferably be done when the universe file represents a comprehensive set of
+sequences\&. With this analysis, if a fully windowed approach is taken, the
+last window will coincide with the universe, and all cumulative
+hypergeometric P-values should equal one (as there is only one possible
+outcome when the sample size equals the universe size)\&.
+
+The \fB-o\fP option specifies the result file\&.
+.in -2m
+
+.ZI 2m "\fB-grow\fP <int> (\fIanalyze nested bins of size <int>\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-step\fP <int> (\fIanalyze consecutive bins of size <int>\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-step-times\fP <int> (\fIanalyze the subset in <int> consecutive bins\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-grow-times\fP <int> (\fIanalyze the subset in <int> nested bins\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+With \fB-grow\fP\ \&\fIN\fP the first bin is started by taking the first
+\fIN\fP sequences from the repository according to the ranking specified
+(if any)\&. For the next bin the next \fIN\fP sequences are \fIadded\fP and
+so on\&. The results thus pertain to growing windows, each window being a
+prefix of its successor window, and the latter extending the former with
+\fIN\fP sequences\&.
+
+The option \fB-grow-times\fP\ \&\fIM\fP is similar to \fB-grow\fP in how
+windows are related, only its argument specifies in advance the \fInumber\fP
+of windows to use rather than the window increment size\&.
+It slightly differs from the \fB-grow\fP option in that window increments
+are computed such that the total number of nucleotides (rather than the
+number of sequences) is approximately the same in each increment\&.
+It is possible to see the exact number of sequences in each window
+by setting the verbosity using \fB-v\fP\ \&\fB2\fP\&.
+This does not affect the final result, other than that the offsets in
+which the ranked sequence universe is tested are different\&. At
+a sufficiently fine granularity the precise placement of the offsets
+no longer matters\&. As a rule of thumb, a window increment of one hundred
+sequences is more than sufficient\&.
+
+With \fB-step\fP\ \&\fIN\fP windows will be consecutive and non-overlapping\&.
+For ranked universes this option is generally not appropriate\&.
+
+As before, the option \fB-step-times\fP\ \&\fIM\fP is similar to \fB-step\fP
+in how windows are constructed, only its argument specifies in advance the
+\fInumber\fP of windows to use rather than the window size\&. The program
+behaviour is then the same as describe under the \fB-grow-times\fP
+option\&.
+.in -2m
+
+.ZI 2m "\fB-tt\fP <int> (\fItop table number\fP)"
+\&
+.br
+
+By default table output is generated only for the top list of both the most
+signficantly underrepresented and overrepresented words\&. This is to avoid
+overwhelming the drawing code invoked after sylamer\&. The default amount is
+1000 and can be changed with this option\&. To select the full table use
+\fB-tt\fP\ \&\fB0\fP\&.
+.in -2m
+
+.ZI 2m "\fB-m\fP <int> (\fIadjust for word length <int>\fP)"
+\&
+.br
+With \fB-m\fP composition biases are corrected using the observed
+occurrences in the current window of words of the specified, smaller size\&.
+From these observed occurrences it will, using a Markov model, derive
+expected frequencies of occurrence of the words (of length\ \&\fBk\fP) that it is
+testing\&. For a given word, this value is then used to compute the expected
+number of word occurrences in the background, and the latter replaces the
+actual occurrence count of that word in the hypergeometric formula\&.
+
+If the window size approaches the universe size and the expected counts
+deviate from the real counts, this approach may lead to wildly ballooning
+P-values\&. This is mitigated by multiplying the expected count with a factor
+\fIu_r\ \&/\ \&u_e\fP, where \fIu_r\fP is the number of observed counts in the
+universe and \fIu_e\fP is the number of expected counts in the universe\&.
+This behaviour is generally necessary whenever \fB-universe\fP is used\&.
+If required it can be turned off using \fB--no-anchor\fP\&.
+.in -2m
+
+.ZI 2m "\fB--no-anchor\fP (\fIdo not modulate expected counts\fP)"
+\&
+.br
+This deactivates expected count modulation as described above\&.
+.in -2m
+
+.ZI 2m "\fB-words\fP <fname> (\fIread words to search from file\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-w\fP p1[,p2[,p3[\&.\&.]]] (\fIcomma separated list of patterns\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-xw\fP p1[,p2[,p3[\&.\&.]]] (\fIcomma separated list of patterns\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options can all be combined, but obviously require the implied
+word lengths to match and any words thus specified should be
+valid DNA or RNA words\&. If none of these options is specified,
+analysis will be performed for all possible words as specified
+by \fB-k\fP (default 6)\&.
+If \fB-words\fP is used, each word in the specified file should occur on
+a line of its own at the beginning of the line\&. The line may contain more
+fields (separated by white-space)\&. These will be ignored, as sylamer simply
+takes the first field on the line\&. delimited by white space\&. A common
+application is to specify the list of all microRNA seed matches of a given
+length for a given species\&.
+
+The \fB-w\fP and \fB-xw\fP options require patterns of the same length
+joined by commas in a single string\&. Any matching word will be included
+(with \fB-w\fP) or excluded (with \fB-xw\fP)\&. Exclusion takes
+precedence; if a word is specified both for inclusion and exclusion
+the latter will apply\&.
+These options can be useful
+in both count mode and filter mode\&. The patterns are specified in the
+extended FASTA DNA alphabet \fC{ACGTUWCGSKMRYBVHD}\fP\&.
+Additionally, the dot character \&'\fC\&.\fP\&' can be used to
+denote any base, and particular clases of bases can be written as, for
+example, \fC[AT]\fP\&. Thus, the pattern \fCA?[AC]\fP will expand to eight
+trimers, namely \fCAAA, AAC, ACA, ACC, AGA, AGC, ATA, ATC\fP\&.
+Use the \fB-xw\fP option to exclude words from analysis\&. The allowed
+patterns are the same as described under the \fB-w\fP option\&. This
+option can be used in conjunction with both \fB-words\fP and \fB-w\fP\&.
+The table below lists the correspondence between the extended FASTA DNA
+alphabet and base classes\&.
+
+.di ZV
+.in 0
+.nf \fC
+      A  A        Adenosine
+      T  T        Thymidine/Uridine
+      U  T        Thymidine/Uridine
+      G  G        Guanine
+      C  C        Cytidine
+      K  [GT]     Keto
+      M  [AC]     Amino
+      R  [AG]     Purine
+      Y  [CT]     Pyrimidine
+      S  [CG]     Strong
+      W  [AT]     Weak
+      B  [CGT]    not A (B comes after A)
+      V  [ACG]    not T/U (V comes after U)
+      H  [ACT]    not G (H comes after G)
+      D  [AGT]    not C (D comes after C)
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+.in -2m
+
+.ZI 2m "\fB--bag\fP (\fIadd bags for all selected word\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-entropy-gq\fP <num> (\fIfilter out words with entropy below <num>\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-entropy\fP <word> (\fIprint entropy of <word> and exit\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+The \fB--bag\fP option adds any word that has the same (single) nucleotide
+composition as any of the words in the set of currently selected words\&.
+The entropy-related options compute entropy based on single nucleotides\&.
+This implies that the words \fCAGCT\fP, \fCAATC\fP, \fCAAGG\fP have entropy 1\&.0, 0\&.75,
+and 0\&.5 respectively\&.
+.in -2m
+
+.ZI 2m "\fB--long-listing\fP (\fIoutput comprehensive bin/word format\fP)"
+\&
+.br
+
+By default only log-transformed and sign-adjusted hypergeometric P-values are output
+in table format and no other information is available\&.
+With this option all P-values are output as they are computed, and all
+pertinent information such as window counts and background counts are provided as well\&.
+.in -2m
+
+.ZI 2m "\fB-do\fP <int> (\fIstop after computing bin <int>\fP)"
+\&
+.br
+This option causes the program to compute results for at most \fI<int>\fP
+bins\&. It does not affect the way in which bin sizes are computed\&.
+.in -2m
+
+.ZI 2m "\fB-shift\fP <int> (\fIignore the first and last <int> sequences\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-lshift\fP <int> (\fIignore the first <int> sequences\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-rshift\fP <int> (\fIignore the last <int> sequences\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+For these options, \fIfirst\fP and \fIlast\fP has to be taken
+in the context of the ranked query file specified with either
+\fB-subset\fP or \fB-universe\fP\&.
+It is possible to ignore leading and trailing portions
+of these files using the options above\&.
+These options are mostly for research purposes, as the
+importance of leading and trailing portions can generally
+be learned from the usual output\&.
+.in -2m
+
+.ZI 2m "\fB--reverse\fP (\fIreverse the input order (subset or universe)\fP)"
+\&
+.br
+This reverses the input order\&. When plotting with the sylamer-associated
+R-script, this should create a perfect mirror image (reflected in
+both x and y axis) provided that the bin offsets are symmetrically
+positioned across the ranked sequence set\&.
+.in -2m
+
+.ZI 2m "\fB-write-missing\fP <fname> (\fIwrite missing IDs to file\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-write-found\fP <fname> (\fIwrite found IDs to file\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-write-query\fP <fname> (\fIwrite deduplicated IDs to file\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+\fB-write-missing\fP, \fB-write-found\fP, and \fB-write-query\fP
+all write identifiers from the file specified with either \fB-universe\fP
+or \fB-subset\fP\&. They are either found in or missing from the
+FASTA input file (\fB-fasta\fP)\&. \fB-write-query\fP writes
+deduplicated identifiers\&.
+These are potentially useful for debugging identifier files\&.
+.in -2m
+
+.ZI 2m "\fB--print-id\fP (\fIprint per-bin concatenated gene ids\fP)"
+\&
+.br
+With this option a concatenated list of IDs is printed
+on each line, containing all gene-ids for the bin under
+consideration\&.
+Conceivable scenarios involve the \fB-step\fP option
+rather than the \fB-grow\fP option\&.
+.in -2m
+
+.ZI 2m "\fB--over\fP (\fIonly do overrepresentation (right/upper tail)\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--under\fP (\fIonly do underrepresentation (left/lower tail)\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--none\fP (\fIskip P-value computation\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--no-binomial\fP (\fIno binomial\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options mainly exist to test various run-time aspects of the program\&.
+The \fB--no-binomial\fP option can be useful if every ounce of
+performance has to be squeezed out of sylamer and binomial P-values are not
+of interest\&.
+.in -2m
+
+.ZI 2m "\fB--two-strands\fP (\fIconsider both strands\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--twostrands\fP (\fIconsider both strands\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+It is possible to inspect sequences in both strand directions\&. With the first
+option the reverse complement of a sequence is added to the repository, and
+the two complementary sequences sort together as a pair\&. This doubles the
+sequence repository\&. All scores for pairs of words that are reverse
+complements should be identical\&. Both scores for a pair of complements are
+reported\&.
+
+The second option is the same in all respects, except that the reverse
+complement is appended to the original sequence (separated by a run of \fCN\fPs
+such that dyad mode will not be affected),
+so that the number of sequences remains unchanged\&.
+.in -2m
+
+.ZI 2m "\fB--shuffle\fP (\fIshuffle universe\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-trial-all\fP <int> (\fIrun repeated trials, <int> times\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-trial-extremes\fP <int> (\fIrun repeated trials, <int> times\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+The \fB--shuffle\fP option randomly shuffles the universe\&. This is only
+useful (for testing Sylamer) either if no ranked list is given or if a
+ranked list is given and repeated trials are run (see below)\&.
+
+With \fB-trial-all\fP\ \&\fIN\fP, sylamer will do \fBN\fP repeated runs, each
+time shuffling the sequence repository beforehand\&. If a ranked list is
+given as input, sylamer will use this list in the very first run and shuffle
+the sequences in all subsequent runs\&. Output is as otherwise specified\&.
+
+This option is as the previous option, except that only the maximum
+enrichment or depletion value is output\&.
+.in -2m
+
+.ZI 2m "\fB--dyad-repeat\fP (\fIselect words that are internal 2-repeats\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--dyad-invert\fP (\fIselect words that are internally inverted repeats\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--dyad-paired\fP (\fIselect the union of the two classes above\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options can be used to create specific subselections of words,
+namely those words that can be split into two equally long parts
+relating to one another in one of two ways\&. This implies
+that the corresponding kmer-length must be even, and this will
+be enforced by the program\&.
+An example of a \fIrepeat\fP dyad is \fCAGGTAGGT\fP, and an example
+of an \fIinvert\fP dyad is \fCAGGTACCT\fP\&.
+
+It is possible to search for dyads that are separated by an amount of bases
+specified to be within a certain range\&. This is done by setting the
+\fB-k\fP option to twice the length of the required dyad length, and
+using the gap options described below\&.
+.in -2m
+
+.ZI 2m "\fB-gap-min\fP <int> (\fIminimum allowed gap between dyads\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-gap-max\fP <int> (\fImaximum allowed gap between dyads\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-gap-gap\fP <int> (\fIrequire space between hits\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--monad-uniform\fP (\fIuse uniform placement model for background correction\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+
+These options set the range of spacing allowed for dyads\&. Any dyad within
+these space parameters is counted, provided the location of the dyad
+(defined as the average of the two monad positions) exceeds the location of
+its previous occurrence by at least the \fB-gap-gap\fP parameter\&. By
+default that parameter is zero so that all dyads are counted\&. This
+parameter employs a simple heuristic that may occasionally fail to exclude
+dyad occurrences within its specification\&. It is mainly intended to counter
+the effect of repetitive sequence, and is an effective measure for doing this\&.
+
+Note that just using one of the dyad \fIrepeat\fP, \fIinvert\fP, or
+\fIpaired\fP options (as described above) only creates a subselection of the
+words\&. It is necessary to use the \fB-gap-min\fP option in order to
+trigger the dyad counting mode\&. This mode will be triggered even when used
+with a zero argument (i\&.e\&. \fB-gap-min\fP\ \&\fB0\fP) and this is in fact a
+useful way to stress-test the counting code (see below)\&. It is possible to
+use dyad mode for arbitrary word lists (including the full word list)\&. For
+this, it suffices to use the gap options as desired without using any of the
+dyad word selection options\&. It is also possible to use other means of word
+selection, e\&.g\&. by one or more of the \fB-words\fP, \fB-w\fP, and
+\fB-xw\fP options\&.
+
+It is possible to employ a simple procedure that is similar to the Markov
+correction used for normal k-mers, in that it computes expected dyad counts
+given the individual monad counts\&. This is done by assuming a simple model
+where the two monads are indepedently distributed across sequence space\&.
+This behaviour is activated using \fB--monad-uniform\fP\&.
+
+It is possible to test the equivalence of the dyad code and the k-mer code
+by running e\&.g\&. \fC--dyad-paired -gap-min 0 --word-count -o test1 -k 6\fP for
+the first, and running \fC--word-count --r2-off -o test2 -k 6\fP
+for the second\&. It is necessary to turn of repeat checking for the k-mer
+code in the last instance because this option is not availabe for the dyad
+code\&. The two file \fCtest1\fP and \fCtest2\fP should be identical\&.
+.in -2m
+
+.ZI 2m "\fB-co\fP <num> (\fIP-value threshold\fP)"
+\&
+.br
+Results are output only if the associated P-value is smaller than the cutoff
+as specified\&. This will break any subsequent application of plotting\&.
+.in -2m
+
+.ZI 2m "\fB-dump-expected\fP <prefix> (\fIprefix for dumping expected frequencies\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-read-expected\fP <fname> (\fIread in expected frequencies\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+The first option will cause the output of expected frequencies based
+on the chosen Markov order for each bin that is computed\&. The argument
+serves as a prefix from which the corresponding file names are constructed\&.
+Additionally, a file is created that contains the real observed
+sequences in \fI<prefix>\fP\&.real\&.
+
+With the second option sylamer reads in a file that contains expected
+occurrence frequencies\&. The format has to be the same as the one generated
+when using \fB-dump-expected\fP\&. It is possible to read in a partial list
+of word-frequency pairs, similar to the usage of the \fB-words\fP
+option\&. In that case, only words that are present in the input file
+will be considered\&.
+.in -2m
+
+.ZI 2m "\fB-u\fP <num> (\fIfake universe size when computing expected values\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-u-times\fP <num> (\fIfake universe size as multiple of subset size\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options are intended to enable control over the universe size
+when no representative sequence universe is available\&.
+The first option sets the universe size to the specified value\&.
+The second option computes it as a multiple of the size of the
+subset specified with the \fB-subset\fP option\&.
+.in -2m
+
+.ZI 2m "\fB-fake-unit-size\fP <num> (\fIfake unit size / simulate equal sequence lengths\fP)"
+\&
+.br
+This option can be used to test the hypothesis that length normalization is
+not appropriate\&. Normally a window size is computed as the number of
+words found in the sequences contained in the window\&. Longer sequences
+generally have more words\&. The hypothesis that length normalization is not
+appropriate presumes that solely the presence of a word in a given sequence
+is what matters, irrespective of the sequence length\&.
+Use this option with care\&.
+.in -2m
+
+.ZI 2m "\fB-threshold\fP <num> (\fIcount per-sequence occurrences exceeding <num>\fP)"
+\&
+.br
+The program changes it behaviour quite drastically with this option\&. It no
+longer counts word occurrences\&. Instead, it counts, for each word, the
+number of times it sees a sequence that has \fIat least\fP \fI<num>\fP
+occurrences of the word\&. The window (sample) size is simply taken as the
+number of sequences in the window\&. This options can be used to test the
+hypothesis that the \fInumber\fP of matches a given word has in a sequence is
+of primary concern, irrespective of sequence length\&. Use this option with
+care\&.
+.in -2m
+
+.ZI 2m "\fB-length-co\fP <num> (\fIlength cutoff for sequences\fP)"
+\&
+.br
+Any sequence for which the length exceeds \fI<num>\fP will
+be truncated to that length\&. This option does not take into
+account the number of masked or unknown bases in the sequence\&.
+A negative number can be used to specify the number of bases
+to cut from the end\&.
+.in -2m
+
+.ZI 2m "\fB--logfold\fP (\fIplot log-ratios of window/background frequencies\fP)"
+\&
+.br
+With this option Sylamer outputs the log-ratio of the window word
+frequencies against the background word frequencies, using table format\&.
+For a given word, this value peaks in the initial bin where the proportion
+of word occurrences is highest\&. It should be noted that the location of this
+peak can be very volatile in response to small changes in the ordering\&. The
+peak location may be found in a very small initial segment simply because
+that segment has a few sequences with many occurrences of the word\&.
+Subsequence enrichment of larger segments can thus be missed\&. The
+hypergeometric distribution has the advantage of a consistent underlying
+statistical model that yields P-values without the need for sampling\&. This
+option is intended for educational purposes only\&.
+.in -2m
+
+.ZI 2m "\fB-cap\fP <num> (\fIcap per-sequence occurrences to <num>\fP)"
+\&
+.br
+This puts a cap on the maximum number of times a word is counted in a single
+sequence\&. Any occurrence count exceeding \fI<num>\fP is set to
+\fI<num>\fP\&. This option can be used if you have sequences with
+repetitive elements that somehow escape being masked by DUST or a
+cross-sequence purging approach\&. It can be useful if you appear to have
+significant results that may be caused by the presence of one or more
+sequences with repetitive elements\&. Use this option with care\&.
+.in -2m
+
+.ZI 2m "\fB-v\fP <int> (\fIset verbosity level\fP)"
+\&
+.br
+By default the verbosity level is set to 1\&. The processing of each bin is then signified by
+the program emitting a dot to STDERR\&. Set it to 0 to silence sylamer\&. Set it to
+2 to obtain more information for each bin that was processed\&.
+.in -2m
+
+.ZI 2m "\fB-log\fP <fname> (\fIlog file\fP)"
+\&
+.br
+Use this to specify a log file\&. If strange events occur they are written to this
+file\&. One such an event is for example when the window occurrence count of
+a word exceed the expected background count\&. This may happen simply because
+a word occurs much more often than expected given the model underlying
+the expected frequencies\&.
+.in -2m
+
+.ZI 2m "\fB--r2-off\fP (\fIdo not disregard 1-shift or 2-shift repeats\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-rm\fP <int> (\fIreduce repeats of length up to <int>, keep ends\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--rm-maskall\fP (\fImask entire repeat including ends\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-rm-char\fP <char> (\fImask repeats with <char>\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+By default subsequent occurrences of words in 1-repeats or 2-repeats are
+ignored\&. Only one of the repeated occurrences is taken into consideration
+and the program pretends that the attached repeats are masked\&. An example of
+a 1-repeat is \fCAAAAAAAAAAA\fP, an example of a 2-repeat is
+\fCGCGCGCGCGCGCG\fP\&.
+
+It is possible to apply simple repeat suppression using the other options\&.
+With \fB-rm\fP\ \&\fB5\fP and \fB-k\fP\ \&\fB6\fP the repeat \fCAGCTAGCTAGCTAGCTAG\fP
+will be reduced to \fCAGCTAGCTAG\fP\&. In dyad mode \fCN\fPs are inserted into the
+sequence to prevent new dyads materalising as a consequence of the shortened
+sequence\&. With the above settings the transformed sequence in dyad mode
+will become \fCAGCTAGNNNNNNAGCTAG\fP\&.
+.in -2m
+
+.ZI 2m "\fB--ck\fP (\fIcount sylamer space in units of k\fP)"
+\&
+.br
+Window sizes are by default counted as the total number of words that are
+available within the contained sequences\&. A fully unmasked stretch of
+sequence of length\ \&100 thus contains\ \&94 words of length\ \&7\&. Any masked
+base introduces a sequence boundary, as any word that contains a masked base
+is not considered\&.
+
+This option changes the way window sizes are counted to the total number of
+nonoverlapping words of length\ \&\fBk\fP that fit in the sequences for that
+window\&. The unmasked stretch of sequence of length\ \&100 contains 14 words of length\ \&7
+in this way of counting\&.
+.in -2m
+
+.ZI 2m "\fB--alien-ok\fP (\fIdo not warn on seeing strange bases\fP)"
+\&
+.br
+Normally a warning is issued when a sequence contains a base
+other than \fCA\fP, \fCC\fP, \fCG\fP, \fCT\fP, \fCU\fP, \fCN\fP, or \fCX\fP\&.
+Use this option to turn those warnings off\&.
+.in -2m
+
+.ZI 2m "\fB--legend\fP (\fIwrite legend for default output format\fP)"
+\&
+.br
+The default output format contains hypergeometric and binomial P-values, the
+input values for the cumulative hypergeometric distribution, per-base
+frequencies of the word under consideration, a ratio score and the log of
+the ratio score\&. This option writes the full legend to the result file as
+the first line, containing all column headers\&.
+.in -2m
+
+.ZI 2m "\fB-fasta-out\fP <fname> (\fIfasta output file\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-rc-out\fP <fname> (\fIreverse complement FASTA output file\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options are mainly for testing the various manipulations
+of the sequence repository\&.
+.in -2m
+
+.ZI 2m "\fB--clean-up\fP (\fIrelease all memory when done\fP)"
+\&
+.br
+This is to test whether sylamer is well-behaved in its memory management\&.
+When enabled, the program should free all the memory it has allocated before
+exiting\&.
+.in -2m
+
+.ZI 2m "\fB--stat\fP (\fIprint data summary for FASTA file\fP)"
+\&
+.br
+This only requires the \fB-fasta\fP option to be used in addition\&.
+Sylamer will output a terse description of the total sequence length in
+the FASTA file and the percentage of bases that are masked\&.
+.in -2m
+
+.ZI 2m "\fB--version\fP (\fIversion information, acknowledgements\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--apropos\fP (\fIprint short option synopsis\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-h\fP (\fIprint short option synopsis\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These are customary options\&. The first prints version, copyright, and author information\&.
+The help options print a short synopsis for every option available\&.
+.in -2m
+.SH SEQUENCE MODE
+
+This mode can be used to reformat sequences, annotation, and
+identifiers\&. It respects the \fB-do\fP option\&. The options
+described here can be useful in conjunction with the FILTER MODE
+options described below\&. In the future this mode will probably
+be split off into a different program\&.
+
+.ZI 2m "\fB--format-fasta\fP (\fIoutput full FASTA sequence format\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--format-id\fP (\fIoutput IDs only\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--format-syntax\fP (\fIdescribe -format syntax\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-format\fP <FORMAT> (\fIoutput according to <FORMAT>\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+Run sylamer with the \fB--format-syntax\fP option for
+the supported output directives\&.
+.in -2m
+.SH FILTER MODE
+
+This mode can be used to select sequence identifiers based
+on quantified occurrences of certain words in the sequences\&.
+
+.ZI 2m "\fB-filter-lq\fP <num> (\fIrequire at least this many occurrences\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-filter-gq\fP <num> (\fIrequire at most this many occurrences\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--filter-and\fP (\fIrequire all conditions are met\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--filter-sum\fP (\fIsum counts over words\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+Each sequence is inspected separately for all words specified\&.
+By default a sequence only has to pass one of the conditions\&.
+The \fB--filter-and\fP option changes this so that all conditions
+have to be met\&.
+The \fB-filter-lq\fP option specifies the condition that a sequence
+has at least the specified number of occurrences of a word\&.
+The \fB-filter-gq\fP option specifies the condition that a sequence
+has at most the specified number of occurrences of a word\&.
+The \fB--filter-sum\fP option causes all counts of words to
+be added before the filter criteria are applied\&.
+.in -2m
+.SH COUNT MODE
+
+This mode outputs a table of counts where rows correspond
+to identifiers from the universe or subset and columns correspond
+to the words being counted\&. Additional columns specifying the
+number of bases, the number of masked bases, and the total available number of
+words of the considered length are appended\&.
+
+.ZI 2m "\fB--word-count\fP (\fIoutput word/sequence counts\fP)"
+\&
+.br
+This puts sylamer in the mode described above\&.
+.in -2m
+.SH EXAMPLES
+
+The files \fCmouse_3utrs\&.fa\fP and \fCsorted_th1\fP are available in the
+directory \fCR_scripts/example\fP from the sylamer distribution\&. For an
+example of how to run sylamer from within an R script, please look at the
+guidelines layed out in the file
+\fCR_scripts/run_sylamer_and_plot_result\&.R\fP\&. In the first of the examples
+below the \fB-universe\fP option is used\&. This implies that all and only
+those sequences in the FASTA file are considered for which an identifier is
+present in the ranked list\&. In the last examples the \fB-subset\fP is
+used\&. In that case, all sequences in the FASTA file are used for obtaining
+the background counts (in order to derive hypergeometric statistics), but
+the enrichment analysis is only carried out for the sequences specified by
+the (subset) rank file\&.
+
+.di ZV
+.in 0
+.nf \fC
+sylamer -fasta mouse_3utrs\&.fa -universe sorted_th1 -grow 100 -o output -k 6
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+This is the default way of running sylamer, in this case using words of length 6\&.
+One adds Markov correction thusly:
+
+.di ZV
+.in 0
+.nf \fC
+sylamer -fasta mouse_3utrs\&.fa -universe sorted_th1 -grow 100 -o output \e
+-k 6 -m 4
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+It is possible to use a restricted word list as follows, assuming that the file \fCmouse\&.6\fP contains
+a list of words, e\&.g\&. microRNA seed matches\&.
+
+.di ZV
+.in 0
+.nf \fC
+sylamer -fasta mouse_3utrs\&.fa -universe sorted_th1 -grow 100 -o output \e
+-k 6 -m 4 -words mouse\&.6
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+It is also possible to use a very small list of words by specifying them on
+the command line\&. Output will be generated only for those words\&.
+
+.di ZV
+.in 0
+.nf \fC
+sylamer -fasta mouse_3utrs\&.fa -universe sorted_th1 -grow 100 -o output \e
+-k 6 -m 4 -w GCATTA,CATTAA,AGCATT
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+If one is interested in the enrichment of a (possibly ranked) subset
+of genes relative to a larger universe it is appropriate to use the
+\fB-subset\fP option\&. Assuming that such a subset is available
+in a file called LIMITEDLIST, the corresponding sylamer invocation is given below\&.
+In this case the acceleration options are dropped, assuming that LIMITEDLIST
+contains a much smaller number of genes than a full ranked list, and the
+bin size increment is lowered to an appropriate number\&.
+
+.di ZV
+.in 0
+.nf \fC
+sylamer -fasta mouse_3utrs\&.fa -subset LIMITEDLIST -grow 25 -o output \e
+-k 6 -m 4 -words mouse\&.6
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+It may well be the case that the file LIMITEDLIST is not ranked
+in a meaningful way\&. In that case, a single bin should
+be used, as the analysis should use the entire
+list as a single bin\&.
+
+.di ZV
+.in 0
+.nf \fC
+sylamer -fasta mouse_3utrs\&.fa -subset LIMITEDLIST -o output \e
+-k 6 -m 4 -words mouse\&.6 -grow-times 1
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+.SH DIAGNOSTICS
+
+The program prints some summary information to STDERR\&. For interactive use
+this can be quite useful\&. This can be turned off, refer to the
+\fB-v\fP option\&.
+
+The exit status is 0 upon successful completion\&. A few pathological cases are
+distinguished that the user may wish to consider\&. These are
+cases where sylamer has insufficient information to progress, but
+that need not be considered failures in a very strict sense\&.
+Under these circumstances sylamer exits with a nonzero exit status
+that is \fIeven\fP\&.
+Examples are that either the FASTA file or the rank file
+is empty\&. In large scale processing and given certain sylamer settings
+(e\&.g\&. it being in counting mode) it may be useful to proceed\&. The
+expected output file should be correctly generated\&. However, it
+will presently not contain the header as it normally would\&.
+All other types of errors will lead to an \fIodd\fP exit status, usually set
+to 1\&. Note that a format error in the FASTA file yields a syntax error and
+accordingly to an odd exit status\&.
+.SH AUTHOR
+
+Stijn van Dongen and Cei Abreu-Goodger\&.
+.SH ACKNOWLEDGEMENTS
+
+Anton Enright: design and use suggestions, suggestion to use C\&.
+.br
+Jacques van Helden: author of oligo-analysis, a related program\&.
+.br
+Weldon Whitener: bootstrap\&.
+.br
+Sergei Manakov: suggestions, testing\&.
+.br
+Harpreet Saini: all things microRNA\&.
+.br
+Russell Grocock: base feature set\&.
+.br
+The GSL people: high quality numerical computing\&.
+.SH REFERENCES
+
+[1]
+Stijn van Dongen, Cei Abreu-Goodger and Anton J\&. Enright\&.
+\fIDetecting microRNA binding and siRNA off-target effects from expression data\fP\&.
+.SH NOTES
+
+This manual was generated from \fBZOEM\fP manual macros, http://micans\&.org/zoem\&.

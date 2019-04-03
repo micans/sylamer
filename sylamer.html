@@ -1,0 +1,1008 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Copyright (c) 18 Stijn van Dongen and Cei Abreu-Goodger -->
+<head>
+<meta name="keywords" content="manual">
+<style type="text/css">
+/* START aephea.base.css */
+body
+{ text-align: justify;
+margin-left: 0%;
+margin-right: 0%;
+}
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.verbatim
+{ font-family: monospace;
+margin-top: 1em;
+margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
+}
+div.indent
+{ margin-left: 8%;
+margin-right: 0%;
+}
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
+</style>
+<title>The sylamer manual</title>
+</head>
+<body>
+<p style="text-align:right">
+5 Nov 18&nbsp;&nbsp;&nbsp;
+<a class="local" href="sylamer.ps"><b>sylamer</b></a>
+18-131
+</p>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#name">NAME</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">2.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">3.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">4.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#options">OPTIONS</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">5.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#seqmode">SEQUENCE MODE</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">6.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#filtermode">FILTER MODE</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">7.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#countmode">COUNT MODE</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">8.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#examples">EXAMPLES</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">9.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#diagnostics">DIAGNOSTICS</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">10.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#author">AUTHOR</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">11.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#acknowledgements">ACKNOWLEDGEMENTS</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">12.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#references">REFERENCES</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">13.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#notes">NOTES</a>
+</div>
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+<p style="margin-bottom:0" class="asd_par">
+sylamer &mdash; fast computation of word biases in ranked <span class="smallcaps">DNA</span> sequences</p>
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<p style="margin-bottom:0" class="asd_par">
+The sylamer program computes P-values associated with small word occurrences
+in a ranked sequence repository, enabling the discovery and assessment of
+enrichment and depletion patterns. In its main mode of invocation it
+accepts a sequence file in <span class="smallcaps">FASTA</span> format, a file containing ranked
+identifiers, a word length&nbsp;<b>k</b>, a step size&nbsp;<b>S</b>, and optionally a file
+containing a list of words of length&nbsp;<b>k</b> (see <a class="intern" href="#examples">EXAMPLES</a>). If no
+word file is specified sylamer will construct the full list of words of
+length&nbsp;<b>k</b>. The maximum word length currently supported is&nbsp;15.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+With these parameters, the program will output cumulative hypergeometric
+P-values for each word, for successive leading windows of the ranked list of
+identifiers. Each window starts from the beginning of the ranked list,
+and encompasses the previous window as well as incorporating the
+next&nbsp;<b>S</b> sequences from the ranked list.
+The model can optionally correct for composition biases using a Markov model
+on any smaller word size (see below).
+It is possible to select window sizes such that each window
+has the same approximate increment of nucleotides (rather than a fixed number of
+sequences) compared to the previous
+window. This is not important to the final analysis however, as explained
+under <a class="intern" href="#opt-grow-times"><b>-grow-times</b></a>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+Three important parameters are <b>-fasta</b>, <b>-universe</b>,
+and <b>-subset</b>. The first is required, and specifies the
+sequence repository to be read. The latter two are mutually exclusive.
+In the first case, the option specifies a file containing a comprehensive
+list of ranked identifiers. Any sequence in the repository for which its
+identifier is not found in this list is purged from the repository. When
+<b>-subset</b> is used, nothing is removed from the repository. The
+entire repository, including sequences not present in the subset, serves as
+the background. In both cases, an identifier for which no sequence is found
+is purged. In the text below, for each of the two cases, the resulting set
+of sequences is alternatively called the <i>sequence universe</i>, the
+<i>background</i>, or simply the <i>sequence repository</i>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The <b>-subset</b> option can be used to analyze a set of sequences that
+are not ranked, relative to a larger background (specified with the
+<b>-fasta</b> option), simply by making it use a single window.
+Refer to the <a class="intern" href="#examples">EXAMPLES</a> section for a brief discussion
+of the different ways in which sylamer can be invoked.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The program has many options that control its behaviour. Crucially, it can
+correct for small words composition biases using a Markov model (<b>-m</b>).
+It has further options to control window
+granularity, to perform random trials on shuffled sequences, to consider
+both strands, to change output format, and more.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The most common use for sylamer is to plot enrichment and depletion values
+as log-transformed P-values on the positive and negative Y-axes,
+respectively <a class="intern" href="#faetc">[1]</a>. This landscape plot represents the full set of
+unfiltered results in an intuitive way. To this end the default sylamer
+output is in a table format where rows represent words and columns represent
+(consecutive and leading) windows. Each cell contains a log-transformed and
+sign-adjusted hypergeometric P-value. The P-value is the smallest of the
+overrepresentation and underrepresentation P-values. If it is the
+overrepresentation P-value then the absolute value of the log-transform is
+taken (sign-adjustment). The program is shipped with an R-script that reads
+this table output and generates the plot.
+</p>
+<p style="margin-bottom:0"><b>NOTE</b><br>
+The first row of the table represents a list of column headers. Each column
+represents a particular bin, and the header for that column contains the
+size of that bin (when using nested bins) or the cumulative size of all bins
+so far (when using stepwise bins). The size of a bin is the number of
+sequences contained within it. This information should be used to find
+the location on the x-axis where the values for each bin should be plotted.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+In order to avoid overwhelming the drawing code with data, it is possible to
+output only the N most signficant results for overrepresented and
+underrepresented words respectively. This is achieved using the
+<a class="intern" href="#opt-tt"><b>-tt</b></a> option.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+By default secondary occurrences of simple 1-repeats and 2-repeats are ignored. This can be
+turned off using <a class="intern" href="#opt--r2-off"><b>--r2-off</b></a>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The alphabet accepted by the program is <tt>A, C, G, T, U, N, X</tt>. The bases
+<tt>T</tt> and <tt>U</tt> are treated as equivalent. In the output only <tt>T</tt>'s are
+reported. Any base not in the alphabet will lead to a message reporting the
+number of unrecognized characters in the relevant sequence, unless the
+option <b>--alien-ok</b> is used. The program transforms lowercase
+characters to uppercase and in the output always uses uppercase.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+Section <a class="intern" href="#description">DESCRIPTION</a> contains more information. Refer
+to <a class="intern" href="#faetc">[1]</a> for an in-depth description of how sylamer works,
+and please cite <a class="intern" href="#faetc">[1]</a> if you use it in scientific publications.
+</p>
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<p style="margin-bottom:0" class="asd_par">
+The sylamer program computes P-values associated with small word occurrences
+in a sequence repository. In each separate run the word size is fixed, as
+specified with the <b>-k</b> option. By default this value is six. The
+program computes both cumulative hypergeometric and binomial P-values.
+Hypergeometric P-values are generally considered to be more accurate and
+have nice symmetry properties <a class="intern" href="#faetc">[1]</a>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+In many cases, the output is most useful when plotted as lines of
+log-transformed P-values. The program is shipped with an R-script that provides a
+convenient wrapper implementing this functionality.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+P-values are computed for each word separately by looking at the number of
+its occurrences in a given window and assessing it relative to the total
+number of counts in the entire sequence repository (called the background),
+using a cumulative hypergeometric model.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The cumulative hypergeometric model (which measures probabilities when
+drawing without replacement) requires four parameters. These are: the
+universe size U (the number of balls in a vase), the number of instances
+of type I, say B (the number of black balls), the sample size (the number of
+balls drawn from the vase), say S, and the number of instances in the sample of
+type I (the number of black balls in the sample), say b.
+Given these parameters we compute the probability of drawing at
+least b black balls under the model where a sample of size S is randomly
+drawn from a universe of size U of which B balls are black. Additionally,
+the probability of drawing at most b black balls is computed, under the same
+model. The first is an enrichment P-value, the second a depletion P-value.
+The smallest of these is reported.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+When the program runs, each pair of window and word it considers specifies a new
+cumulative hypergeometric model, where each new window defines a new sample.
+In this model the universe size is by default the total number of words of
+length&nbsp;<b>k</b> in the background and does not vary across words or windows. The
+sample size is the number of words of length&nbsp;<b>k</b> in the window. This is the
+same for all words in a given window. The number of type I instances for a
+given word&nbsp;<b>w</b> in the background is the number of times <b>w</b>&nbsp;occurs in the
+background. This number depends on&nbsp;<b>w</b> only. The number of type I instances
+in the sample for&nbsp;<b>w</b> is the number of times that <b>w</b>&nbsp;occurs in a given
+window.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+It should be noted that an enrichment hypergeometric P-value in a leading
+bin of a sequence set for a given word is exactly the hypergeometric
+depletion P-value for that word for the complement trailing bin, as a result
+of the properties of drawing without replacement.
+</p>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-k"></a><b>-k</b> &lt;int&gt; (<i>word length K</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The word length to use. By default this has value&nbsp;6.
+If either <b>-words</b> or <b>-read-expected</b> is used,
+the program will check that the word size found in the file argument
+agrees with this option. In particular, if the word file contains
+words of any length other than&nbsp;6, it is necessary to specify
+the same word length using this option.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-fasta"></a><b>-fasta</b> &lt;fname&gt; (<i>fasta file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-universe"></a><b>-universe</b> &lt;fname&gt; (<i>file containing rankekd universe IDs</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-subset"></a><b>-subset</b> &lt;fname&gt; (<i>file containing ranked subset IDs</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>result file</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options are the primary input and output options. In order to specify
+STDIN or STDOUT for any of them, use a single hyphen (-).
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The <b>-fasta</b> option is required, and should specify a file in <span class="smallcaps">FASTA</span>
+format containing <span class="smallcaps">DNA</span> or <span class="smallcaps">RNA</span> sequences. Either <b>-universe</b> or
+<b>-subset</b> should be given. In both cases, the argument specifies the
+name of a file containing a single identifier per line. Any identifier not
+present in the <span class="smallcaps">FASTA</span> file is disregarded. Then, with <b>-subset</b>, the
+sequences in the subset thus specified will be analyzed relative to the
+entire set of sequences in the <span class="smallcaps">FASTA</span> file. This primarily means that the
+background counts are derived from the <span class="smallcaps">FASTA</span> file, and that the analysis
+only considers the subset.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+With <b>-universe</b> the sequences from the <span class="smallcaps">FASTA</span> file will be purged so
+that they only include identifiers found in the universe file. This should
+preferably be done when the universe file represents a comprehensive set of
+sequences. With this analysis, if a fully windowed approach is taken, the
+last window will coincide with the universe, and all cumulative
+hypergeometric P-values should equal one (as there is only one possible
+outcome when the sample size equals the universe size).
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The <b>-o</b> option specifies the result file.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-grow"></a><b>-grow</b> &lt;int&gt; (<i>analyze nested bins of size &lt;int&gt;</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-step"></a><b>-step</b> &lt;int&gt; (<i>analyze consecutive bins of size &lt;int&gt;</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-step-times"></a><b>-step-times</b> &lt;int&gt; (<i>analyze the subset in &lt;int&gt; consecutive bins</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-grow-times"></a><b>-grow-times</b> &lt;int&gt; (<i>analyze the subset in &lt;int&gt; nested bins</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+With <b>-grow</b>&nbsp;<i>N</i> the first bin is started by taking the first
+<i>N</i> sequences from the repository according to the ranking specified
+(if any). For the next bin the next <i>N</i> sequences are <i>added</i> and
+so on. The results thus pertain to growing windows, each window being a
+prefix of its successor window, and the latter extending the former with
+<i>N</i> sequences.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The option <b>-grow-times</b>&nbsp;<i>M</i> is similar to <b>-grow</b> in how
+windows are related, only its argument specifies in advance the <i>number</i>
+of windows to use rather than the window increment size.
+It slightly differs from the <b>-grow</b> option in that window increments
+are computed such that the total number of nucleotides (rather than the
+number of sequences) is approximately the same in each increment.
+It is possible to see the exact number of sequences in each window
+by setting the verbosity using <b>-v</b>&nbsp;<b>2</b>.
+This does not affect the final result, other than that the offsets in
+which the ranked sequence universe is tested are different. At
+a sufficiently fine granularity the precise placement of the offsets
+no longer matters. As a rule of thumb, a window increment of one hundred
+sequences is more than sufficient.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+With <b>-step</b>&nbsp;<i>N</i> windows will be consecutive and non-overlapping.
+For ranked universes this option is generally not appropriate.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+As before, the option <b>-step-times</b>&nbsp;<i>M</i> is similar to <b>-step</b>
+in how windows are constructed, only its argument specifies in advance the
+<i>number</i> of windows to use rather than the window size. The program
+behaviour is then the same as describe under the <b>-grow-times</b>
+option.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tt"></a><b>-tt</b> &lt;int&gt; (<i>top table number</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-bottom:0" class="asd_par">
+By default table output is generated only for the top list of both the most
+signficantly underrepresented and overrepresented words. This is to avoid
+overwhelming the drawing code invoked after sylamer. The default amount is
+1000 and can be changed with this option. To select the full table use
+<b>-tt</b>&nbsp;<b>0</b>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-m"></a><b>-m</b> &lt;int&gt; (<i>adjust for word length &lt;int&gt;</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+With <b>-m</b> composition biases are corrected using the observed
+occurrences in the current window of words of the specified, smaller size.
+From these observed occurrences it will, using a Markov model, derive
+expected frequencies of occurrence of the words (of length&nbsp;<b>k</b>) that it is
+testing. For a given word, this value is then used to compute the expected
+number of word occurrences in the background, and the latter replaces the
+actual occurrence count of that word in the hypergeometric formula.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+If the window size approaches the universe size and the expected counts
+deviate from the real counts, this approach may lead to wildly ballooning
+P-values. This is mitigated by multiplying the expected count with a factor
+<i>u_r&nbsp;/&nbsp;u_e</i>, where <i>u_r</i> is the number of observed counts in the
+universe and <i>u_e</i> is the number of expected counts in the universe.
+This behaviour is generally necessary whenever <b>-universe</b> is used.
+If required it can be turned off using <b>--no-anchor</b>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--no-anchor"></a><b>--no-anchor</b> (<i>do not modulate expected counts</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This deactivates expected count modulation as described above.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-words"></a><b>-words</b> &lt;fname&gt; (<i>read words to search from file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-w"></a><b>-w</b> p1[,p2[,p3[..]]] (<i>comma separated list of patterns</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-xw"></a><b>-xw</b> p1[,p2[,p3[..]]] (<i>comma separated list of patterns</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options can all be combined, but obviously require the implied
+word lengths to match and any words thus specified should be
+valid <span class="smallcaps">DNA</span> or <span class="smallcaps">RNA</span> words. If none of these options is specified,
+analysis will be performed for all possible words as specified
+by <b>-k</b> (default 6).
+If <b>-words</b> is used, each word in the specified file should occur on
+a line of its own at the beginning of the line. The line may contain more
+fields (separated by white-space). These will be ignored, as sylamer simply
+takes the first field on the line. delimited by white space. A common
+application is to specify the list of all microRNA seed matches of a given
+length for a given species.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The <b>-w</b> and <b>-xw</b> options require patterns of the same length
+joined by commas in a single string. Any matching word will be included
+(with <b>-w</b>) or excluded (with <b>-xw</b>). Exclusion takes
+precedence; if a word is specified both for inclusion and exclusion
+the latter will apply.
+These options can be useful
+in both count mode and filter mode. The patterns are specified in the
+extended <span class="smallcaps">FASTA</span> <span class="smallcaps">DNA</span> alphabet <tt>{ACGTUWCGSKMRYBVHD}</tt>.
+Additionally, the dot character '<tt>.</tt>' can be used to
+denote any base, and particular clases of bases can be written as, for
+example, <tt>[AT]</tt>. Thus, the pattern <tt>A?[AC]</tt> will expand to eight
+trimers, namely <tt>AAA, AAC, ACA, ACC, AGA, AGC, ATA, ATC</tt>.
+Use the <b>-xw</b> option to exclude words from analysis. The allowed
+patterns are the same as described under the <b>-w</b> option. This
+option can be used in conjunction with both <b>-words</b> and <b>-w</b>.
+The table below lists the correspondence between the extended <span class="smallcaps">FASTA</span> <span class="smallcaps">DNA</span>
+alphabet and base classes.
+</p>
+<div class="verbatim">      A  A        Adenosine
+      T  T        Thymidine/Uridine
+      U  T        Thymidine/Uridine
+      G  G        Guanine
+      C  C        Cytidine
+      K  [GT]     Keto
+      M  [AC]     Amino
+      R  [AG]     Purine
+      Y  [CT]     Pyrimidine
+      S  [CG]     Strong
+      W  [AT]     Weak
+      B  [CGT]    not A (B comes after A)
+      V  [ACG]    not T/U (V comes after U)
+      H  [ACT]    not G (H comes after G)
+      D  [AGT]    not C (D comes after C)</div>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--bag"></a><b>--bag</b> (<i>add bags for all selected word</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-entropy-gq"></a><b>-entropy-gq</b> &lt;num&gt; (<i>filter out words with entropy below &lt;num&gt;</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-entropy"></a><b>-entropy</b> &lt;word&gt; (<i>print entropy of &lt;word&gt; and exit</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The <b>--bag</b> option adds any word that has the same (single) nucleotide
+composition as any of the words in the set of currently selected words.
+The entropy-related options compute entropy based on single nucleotides.
+This implies that the words <tt>AGCT</tt>, <tt>AATC</tt>, <tt>AAGG</tt> have entropy 1.0, 0.75,
+and 0.5 respectively.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--long-listing"></a><b>--long-listing</b> (<i>output comprehensive bin/word format</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-bottom:0" class="asd_par">
+By default only log-transformed and sign-adjusted hypergeometric P-values are output
+in table format and no other information is available.
+With this option all P-values are output as they are computed, and all
+pertinent information such as window counts and background counts are provided as well.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-do"></a><b>-do</b> &lt;int&gt; (<i>stop after computing bin &lt;int&gt;</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option causes the program to compute results for at most <i>&lt;int&gt;</i>
+bins. It does not affect the way in which bin sizes are computed.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-shift"></a><b>-shift</b> &lt;int&gt; (<i>ignore the first and last &lt;int&gt; sequences</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-lshift"></a><b>-lshift</b> &lt;int&gt; (<i>ignore the first &lt;int&gt; sequences</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rshift"></a><b>-rshift</b> &lt;int&gt; (<i>ignore the last &lt;int&gt; sequences</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+For these options, <i>first</i> and <i>last</i> has to be taken
+in the context of the ranked query file specified with either
+<b>-subset</b> or <b>-universe</b>.
+It is possible to ignore leading and trailing portions
+of these files using the options above.
+These options are mostly for research purposes, as the
+importance of leading and trailing portions can generally
+be learned from the usual output.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--reverse"></a><b>--reverse</b> (<i>reverse the input order (subset or universe)</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This reverses the input order. When plotting with the sylamer-associated
+R-script, this should create a perfect mirror image (reflected in
+both x and y axis) provided that the bin offsets are symmetrically
+positioned across the ranked sequence set.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-missing"></a><b>-write-missing</b> &lt;fname&gt; (<i>write missing IDs to file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-found"></a><b>-write-found</b> &lt;fname&gt; (<i>write found IDs to file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-query"></a><b>-write-query</b> &lt;fname&gt; (<i>write deduplicated IDs to file</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+<b>-write-missing</b>, <b>-write-found</b>, and <b>-write-query</b>
+all write identifiers from the file specified with either <b>-universe</b>
+or <b>-subset</b>. They are either found in or missing from the
+<span class="smallcaps">FASTA</span> input file (<b>-fasta</b>). <b>-write-query</b> writes
+deduplicated identifiers.
+These are potentially useful for debugging identifier files.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--print-id"></a><b>--print-id</b> (<i>print per-bin concatenated gene ids</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+With this option a concatenated list of IDs is printed
+on each line, containing all gene-ids for the bin under
+consideration.
+Conceivable scenarios involve the <b>-step</b> option
+rather than the <b>-grow</b> option.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--over"></a><b>--over</b> (<i>only do overrepresentation (right/upper tail)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--under"></a><b>--under</b> (<i>only do underrepresentation (left/lower tail)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--none"></a><b>--none</b> (<i>skip P-value computation</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--no-binomial"></a><b>--no-binomial</b> (<i>no binomial</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options mainly exist to test various run-time aspects of the program.
+The <b>--no-binomial</b> option can be useful if every ounce of
+performance has to be squeezed out of sylamer and binomial P-values are not
+of interest.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--two-strands"></a><b>--two-strands</b> (<i>consider both strands</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--twostrands"></a><b>--twostrands</b> (<i>consider both strands</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+It is possible to inspect sequences in both strand directions. With the first
+option the reverse complement of a sequence is added to the repository, and
+the two complementary sequences sort together as a pair. This doubles the
+sequence repository. All scores for pairs of words that are reverse
+complements should be identical. Both scores for a pair of complements are
+reported.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The second option is the same in all respects, except that the reverse
+complement is appended to the original sequence (separated by a run of <tt>N</tt>s
+such that dyad mode will not be affected),
+so that the number of sequences remains unchanged.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--shuffle"></a><b>--shuffle</b> (<i>shuffle universe</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-trial-all"></a><b>-trial-all</b> &lt;int&gt; (<i>run repeated trials, &lt;int&gt; times</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-trial-extremes"></a><b>-trial-extremes</b> &lt;int&gt; (<i>run repeated trials, &lt;int&gt; times</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The <b>--shuffle</b> option randomly shuffles the universe. This is only
+useful (for testing Sylamer) either if no ranked list is given or if a
+ranked list is given and repeated trials are run (see below).
+</p>
+<p style="margin-bottom:0" class="asd_par">
+With <b>-trial-all</b>&nbsp;<i>N</i>, sylamer will do <b>N</b> repeated runs, each
+time shuffling the sequence repository beforehand. If a ranked list is
+given as input, sylamer will use this list in the very first run and shuffle
+the sequences in all subsequent runs. Output is as otherwise specified.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+This option is as the previous option, except that only the maximum
+enrichment or depletion value is output.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dyad-repeat"></a><b>--dyad-repeat</b> (<i>select words that are internal 2-repeats</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dyad-invert"></a><b>--dyad-invert</b> (<i>select words that are internally inverted repeats</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dyad-paired"></a><b>--dyad-paired</b> (<i>select the union of the two classes above</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options can be used to create specific subselections of words,
+namely those words that can be split into two equally long parts
+relating to one another in one of two ways. This implies
+that the corresponding kmer-length must be even, and this will
+be enforced by the program.
+An example of a <i>repeat</i> dyad is <tt>AGGTAGGT</tt>, and an example
+of an <i>invert</i> dyad is <tt>AGGTACCT</tt>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+It is possible to search for dyads that are separated by an amount of bases
+specified to be within a certain range. This is done by setting the
+<b>-k</b> option to twice the length of the required dyad length, and
+using the gap options described below.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-gap-min"></a><b>-gap-min</b> &lt;int&gt; (<i>minimum allowed gap between dyads</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-gap-max"></a><b>-gap-max</b> &lt;int&gt; (<i>maximum allowed gap between dyads</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-gap-gap"></a><b>-gap-gap</b> &lt;int&gt; (<i>require space between hits</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--monad-uniform"></a><b>--monad-uniform</b> (<i>use uniform placement model for background correction</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+</p>
+<p style="margin-bottom:0" class="asd_par">
+These options set the range of spacing allowed for dyads. Any dyad within
+these space parameters is counted, provided the location of the dyad
+(defined as the average of the two monad positions) exceeds the location of
+its previous occurrence by at least the <b>-gap-gap</b> parameter. By
+default that parameter is zero so that all dyads are counted. This
+parameter employs a simple heuristic that may occasionally fail to exclude
+dyad occurrences within its specification. It is mainly intended to counter
+the effect of repetitive sequence, and is an effective measure for doing this.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+Note that just using one of the dyad <i>repeat</i>, <i>invert</i>, or
+<i>paired</i> options (as described above) only creates a subselection of the
+words. It is necessary to use the <b>-gap-min</b> option in order to
+trigger the dyad counting mode. This mode will be triggered even when used
+with a zero argument (i.e. <b>-gap-min</b>&nbsp;<b>0</b>) and this is in fact a
+useful way to stress-test the counting code (see below). It is possible to
+use dyad mode for arbitrary word lists (including the full word list). For
+this, it suffices to use the gap options as desired without using any of the
+dyad word selection options. It is also possible to use other means of word
+selection, e.g. by one or more of the <b>-words</b>, <b>-w</b>, and
+<b>-xw</b> options.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+It is possible to employ a simple procedure that is similar to the Markov
+correction used for normal k-mers, in that it computes expected dyad counts
+given the individual monad counts. This is done by assuming a simple model
+where the two monads are indepedently distributed across sequence space.
+This behaviour is activated using <b>--monad-uniform</b>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+It is possible to test the equivalence of the dyad code and the k-mer code
+by running e.g. <tt>--dyad-paired -gap-min 0 --word-count -o test1 -k 6</tt> for
+the first, and running <tt>--word-count --r2-off -o test2 -k 6</tt>
+for the second. It is necessary to turn of repeat checking for the k-mer
+code in the last instance because this option is not availabe for the dyad
+code. The two file <tt>test1</tt> and <tt>test2</tt> should be identical.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-co"></a><b>-co</b> &lt;num&gt; (<i>P-value threshold</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Results are output only if the associated P-value is smaller than the cutoff
+as specified. This will break any subsequent application of plotting.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-expected"></a><b>-dump-expected</b> &lt;prefix&gt; (<i>prefix for dumping expected frequencies</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-read-expected"></a><b>-read-expected</b> &lt;fname&gt; (<i>read in expected frequencies</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The first option will cause the output of expected frequencies based
+on the chosen Markov order for each bin that is computed. The argument
+serves as a prefix from which the corresponding file names are constructed.
+Additionally, a file is created that contains the real observed
+sequences in <i>&lt;prefix&gt;</i>.real.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+With the second option sylamer reads in a file that contains expected
+occurrence frequencies. The format has to be the same as the one generated
+when using <b>-dump-expected</b>. It is possible to read in a partial list
+of word-frequency pairs, similar to the usage of the <a class="intern" href="#opt-words"><b>-words</b></a>
+option. In that case, only words that are present in the input file
+will be considered.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-u"></a><b>-u</b> &lt;num&gt; (<i>fake universe size when computing expected values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-u-times"></a><b>-u-times</b> &lt;num&gt; (<i>fake universe size as multiple of subset size</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options are intended to enable control over the universe size
+when no representative sequence universe is available.
+The first option sets the universe size to the specified value.
+The second option computes it as a multiple of the size of the
+subset specified with the <b>-subset</b> option.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-fake-unit-size"></a><b>-fake-unit-size</b> &lt;num&gt; (<i>fake unit size / simulate equal sequence lengths</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option can be used to test the hypothesis that length normalization is
+not appropriate. Normally a window size is computed as the number of
+words found in the sequences contained in the window. Longer sequences
+generally have more words. The hypothesis that length normalization is not
+appropriate presumes that solely the presence of a word in a given sequence
+is what matters, irrespective of the sequence length.
+Use this option with care.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-threshold"></a><b>-threshold</b> &lt;num&gt; (<i>count per-sequence occurrences exceeding &lt;num&gt;</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The program changes it behaviour quite drastically with this option. It no
+longer counts word occurrences. Instead, it counts, for each word, the
+number of times it sees a sequence that has <i>at least</i> <i>&lt;num&gt;</i>
+occurrences of the word. The window (sample) size is simply taken as the
+number of sequences in the window. This options can be used to test the
+hypothesis that the <i>number</i> of matches a given word has in a sequence is
+of primary concern, irrespective of sequence length. Use this option with
+care.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-length-co"></a><b>-length-co</b> &lt;num&gt; (<i>length cutoff for sequences</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Any sequence for which the length exceeds <i>&lt;num&gt;</i> will
+be truncated to that length. This option does not take into
+account the number of masked or unknown bases in the sequence.
+A negative number can be used to specify the number of bases
+to cut from the end.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--logfold"></a><b>--logfold</b> (<i>plot log-ratios of window/background frequencies</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+With this option Sylamer outputs the log-ratio of the window word
+frequencies against the background word frequencies, using table format.
+For a given word, this value peaks in the initial bin where the proportion
+of word occurrences is highest. It should be noted that the location of this
+peak can be very volatile in response to small changes in the ordering. The
+peak location may be found in a very small initial segment simply because
+that segment has a few sequences with many occurrences of the word.
+Subsequence enrichment of larger segments can thus be missed. The
+hypergeometric distribution has the advantage of a consistent underlying
+statistical model that yields P-values without the need for sampling. This
+option is intended for educational purposes only.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-cap"></a><b>-cap</b> &lt;num&gt; (<i>cap per-sequence occurrences to &lt;num&gt;</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This puts a cap on the maximum number of times a word is counted in a single
+sequence. Any occurrence count exceeding <i>&lt;num&gt;</i> is set to
+<i>&lt;num&gt;</i>. This option can be used if you have sequences with
+repetitive elements that somehow escape being masked by DUST or a
+cross-sequence purging approach. It can be useful if you appear to have
+significant results that may be caused by the presence of one or more
+sequences with repetitive elements. Use this option with care.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-v"></a><b>-v</b> &lt;int&gt; (<i>set verbosity level</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+By default the verbosity level is set to 1. The processing of each bin is then signified by
+the program emitting a dot to STDERR. Set it to 0 to silence sylamer. Set it to
+2 to obtain more information for each bin that was processed.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-log"></a><b>-log</b> &lt;fname&gt; (<i>log file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Use this to specify a log file. If strange events occur they are written to this
+file. One such an event is for example when the window occurrence count of
+a word exceed the expected background count. This may happen simply because
+a word occurs much more often than expected given the model underlying
+the expected frequencies.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--r2-off"></a><b>--r2-off</b> (<i>do not disregard 1-shift or 2-shift repeats</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rm"></a><b>-rm</b> &lt;int&gt; (<i>reduce repeats of length up to &lt;int&gt;, keep ends</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--rm-maskall"></a><b>--rm-maskall</b> (<i>mask entire repeat including ends</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rm-char"></a><b>-rm-char</b> &lt;char&gt; (<i>mask repeats with &lt;char&gt;</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+By default subsequent occurrences of words in 1-repeats or 2-repeats are
+ignored. Only one of the repeated occurrences is taken into consideration
+and the program pretends that the attached repeats are masked. An example of
+a 1-repeat is <tt>AAAAAAAAAAA</tt>, an example of a 2-repeat is
+<tt>GCGCGCGCGCGCG</tt>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+It is possible to apply simple repeat suppression using the other options.
+With <b>-rm</b>&nbsp;<b>5</b> and <b>-k</b>&nbsp;<b>6</b> the repeat <tt>AGCTAGCTAGCTAGCTAG</tt>
+will be reduced to <tt>AGCTAGCTAG</tt>. In dyad mode <tt>N</tt>s are inserted into the
+sequence to prevent new dyads materalising as a consequence of the shortened
+sequence. With the above settings the transformed sequence in dyad mode
+will become <tt>AGCTAGNNNNNNAGCTAG</tt>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--ck"></a><b>--ck</b> (<i>count sylamer space in units of k</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Window sizes are by default counted as the total number of words that are
+available within the contained sequences. A fully unmasked stretch of
+sequence of length&nbsp;100 thus contains&nbsp;94 words of length&nbsp;7. Any masked
+base introduces a sequence boundary, as any word that contains a masked base
+is not considered.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+This option changes the way window sizes are counted to the total number of
+nonoverlapping words of length&nbsp;<b>k</b> that fit in the sequences for that
+window. The unmasked stretch of sequence of length&nbsp;100 contains 14 words of length&nbsp;7
+in this way of counting.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--alien-ok"></a><b>--alien-ok</b> (<i>do not warn on seeing strange bases</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Normally a warning is issued when a sequence contains a base
+other than <tt>A</tt>, <tt>C</tt>, <tt>G</tt>, <tt>T</tt>, <tt>U</tt>, <tt>N</tt>, or <tt>X</tt>.
+Use this option to turn those warnings off.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--legend"></a><b>--legend</b> (<i>write legend for default output format</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The default output format contains hypergeometric and binomial P-values, the
+input values for the cumulative hypergeometric distribution, per-base
+frequencies of the word under consideration, a ratio score and the log of
+the ratio score. This option writes the full legend to the result file as
+the first line, containing all column headers.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-fasta-out"></a><b>-fasta-out</b> &lt;fname&gt; (<i>fasta output file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rc-out"></a><b>-rc-out</b> &lt;fname&gt; (<i>reverse complement <span class="smallcaps">FASTA</span> output file</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options are mainly for testing the various manipulations
+of the sequence repository.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--clean-up"></a><b>--clean-up</b> (<i>release all memory when done</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This is to test whether sylamer is well-behaved in its memory management.
+When enabled, the program should free all the memory it has allocated before
+exiting.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stat"></a><b>--stat</b> (<i>print data summary for <span class="smallcaps">FASTA</span> file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This only requires the <b>-fasta</b> option to be used in addition.
+Sylamer will output a terse description of the total sequence length in
+the <span class="smallcaps">FASTA</span> file and the percentage of bases that are masked.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--version"></a><b>--version</b> (<i>version information, acknowledgements</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--apropos"></a><b>--apropos</b> (<i>print short option synopsis</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-h"></a><b>-h</b> (<i>print short option synopsis</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These are customary options. The first prints version, copyright, and author information.
+The help options print a short synopsis for every option available.
+</p>
+</div>
+</div>
+
+<a name="seqmode"></a>
+<h2>SEQUENCE MODE</h2>
+<p style="margin-bottom:0" class="asd_par">
+This mode can be used to reformat sequences, annotation, and
+identifiers. It respects the <b>-do</b> option. The options
+described here can be useful in conjunction with the FILTER MODE
+options described below. In the future this mode will probably
+be split off into a different program.
+</p>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade item_leftalign nowrap" ><a name="opt--format-fasta"></a><b>--format-fasta</b> (<i>output full <span class="smallcaps">FASTA</span> sequence format</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--format-id"></a><b>--format-id</b> (<i>output IDs only</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--format-syntax"></a><b>--format-syntax</b> (<i>describe -format syntax</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-format"></a><b>-format</b> &lt;FORMAT&gt; (<i>output according to &lt;FORMAT&gt;</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Run sylamer with the <b>--format-syntax</b> option for
+the supported output directives.
+</p>
+</div>
+</div>
+
+<a name="filtermode"></a>
+<h2>FILTER MODE</h2>
+<p style="margin-bottom:0" class="asd_par">
+This mode can be used to select sequence identifiers based
+on quantified occurrences of certain words in the sequences.
+</p>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade item_leftalign nowrap" ><a name="opt-filter-lq"></a><b>-filter-lq</b> &lt;num&gt; (<i>require at least this many occurrences</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-filter-gq"></a><b>-filter-gq</b> &lt;num&gt; (<i>require at most this many occurrences</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--filter-and"></a><b>--filter-and</b> (<i>require all conditions are met</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--filter-sum"></a><b>--filter-sum</b> (<i>sum counts over words</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Each sequence is inspected separately for all words specified.
+By default a sequence only has to pass one of the conditions.
+The <b>--filter-and</b> option changes this so that all conditions
+have to be met.
+The <b>-filter-lq</b> option specifies the condition that a sequence
+has at least the specified number of occurrences of a word.
+The <b>-filter-gq</b> option specifies the condition that a sequence
+has at most the specified number of occurrences of a word.
+The <b>--filter-sum</b> option causes all counts of words to
+be added before the filter criteria are applied.
+</p>
+</div>
+</div>
+
+<a name="countmode"></a>
+<h2>COUNT MODE</h2>
+<p style="margin-bottom:0" class="asd_par">
+This mode outputs a table of counts where rows correspond
+to identifiers from the universe or subset and columns correspond
+to the words being counted. Additional columns specifying the
+number of bases, the number of masked bases, and the total available number of
+words of the considered length are appended.
+</p>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--word-count"></a><b>--word-count</b> (<i>output word/sequence counts</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This puts sylamer in the mode described above.
+</p>
+</div>
+</div>
+
+<a name="examples"></a>
+<h2>EXAMPLES</h2>
+<p style="margin-bottom:0" class="asd_par">
+The files <tt>mouse_3utrs.fa</tt> and <tt>sorted_th1</tt> are available in the
+directory <tt>R_scripts/example</tt> from the sylamer distribution. For an
+example of how to run sylamer from within an R script, please look at the
+guidelines layed out in the file
+<tt>R_scripts/run_sylamer_and_plot_result.R</tt>. In the first of the examples
+below the <b>-universe</b> option is used. This implies that all and only
+those sequences in the <span class="smallcaps">FASTA</span> file are considered for which an identifier is
+present in the ranked list. In the last examples the <b>-subset</b> is
+used. In that case, all sequences in the <span class="smallcaps">FASTA</span> file are used for obtaining
+the background counts (in order to derive hypergeometric statistics), but
+the enrichment analysis is only carried out for the sequences specified by
+the (subset) rank file.
+</p>
+<div class="verbatim">sylamer -fasta mouse_3utrs.fa -universe sorted_th1 -grow 100 -o output -k 6</div>
+<p style="margin-top:0em; margin-bottom:0em">
+This is the default way of running sylamer, in this case using words of length 6.
+One adds Markov correction thusly:</p>
+<div class="verbatim">sylamer -fasta mouse_3utrs.fa -universe sorted_th1 -grow 100 -o output \
+-k 6 -m 4</div>
+<p style="margin-top:0em; margin-bottom:0em">
+It is possible to use a restricted word list as follows, assuming that the file <tt>mouse.6</tt> contains
+a list of words, e.g. microRNA seed matches.</p>
+<div class="verbatim">sylamer -fasta mouse_3utrs.fa -universe sorted_th1 -grow 100 -o output \
+-k 6 -m 4 -words mouse.6</div>
+<p style="margin-top:0em; margin-bottom:0em">
+It is also possible to use a very small list of words by specifying them on
+the command line. Output will be generated only for those words.</p>
+<div class="verbatim">sylamer -fasta mouse_3utrs.fa -universe sorted_th1 -grow 100 -o output \
+-k 6 -m 4 -w GCATTA,CATTAA,AGCATT</div>
+<p style="margin-top:0em; margin-bottom:0em">
+If one is interested in the enrichment of a (possibly ranked) subset
+of genes relative to a larger universe it is appropriate to use the
+<b>-subset</b> option. Assuming that such a subset is available
+in a file called LIMITEDLIST, the corresponding sylamer invocation is given below.
+In this case the acceleration options are dropped, assuming that LIMITEDLIST
+contains a much smaller number of genes than a full ranked list, and the
+bin size increment is lowered to an appropriate number.
+</p>
+<div class="verbatim">sylamer -fasta mouse_3utrs.fa -subset LIMITEDLIST -grow 25 -o output \
+-k 6 -m 4 -words mouse.6</div>
+<p style="margin-top:0em; margin-bottom:0em">
+It may well be the case that the file LIMITEDLIST is not ranked
+in a meaningful way. In that case, a single bin should
+be used, as the analysis should use the entire
+list as a single bin.
+</p>
+<div class="verbatim">sylamer -fasta mouse_3utrs.fa -subset LIMITEDLIST -o output \
+-k 6 -m 4 -words mouse.6 -grow-times 1</div>
+
+<a name="diagnostics"></a>
+<h2>DIAGNOSTICS</h2>
+<p style="margin-bottom:0" class="asd_par">
+The program prints some summary information to STDERR. For interactive use
+this can be quite useful. This can be turned off, refer to the
+<b>-v</b> option.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+The exit status is 0 upon successful completion. A few pathological cases are
+distinguished that the user may wish to consider. These are
+cases where sylamer has insufficient information to progress, but
+that need not be considered failures in a very strict sense.
+Under these circumstances sylamer exits with a nonzero exit status
+that is <i>even</i>.
+Examples are that either the <span class="smallcaps">FASTA</span> file or the rank file
+is empty. In large scale processing and given certain sylamer settings
+(e.g. it being in counting mode) it may be useful to proceed. The
+expected output file should be correctly generated. However, it
+will presently not contain the header as it normally would.
+All other types of errors will lead to an <i>odd</i> exit status, usually set
+to 1. Note that a format error in the <span class="smallcaps">FASTA</span> file yields a syntax error and
+accordingly to an odd exit status.
+</p>
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+<p style="margin-bottom:0" class="asd_par">
+Stijn van Dongen and Cei Abreu-Goodger.
+</p>
+
+<a name="acknowledgements"></a>
+<h2>ACKNOWLEDGEMENTS</h2>
+<p style="margin-bottom:0" class="asd_par">
+Anton Enright: design and use suggestions, suggestion to use C.<br>
+Jacques van Helden: author of oligo-analysis, a related program.<br>
+Weldon Whitener: bootstrap.<br>
+Sergei Manakov: suggestions, testing.<br>
+Harpreet Saini: all things microRNA.<br>
+Russell Grocock: base feature set.<br>
+The GSL people: high quality numerical computing.
+</p>
+
+<a name="references"></a>
+<h2>REFERENCES</h2>
+<p style="margin-bottom:0" class="asd_par">
+<a name="faetc">[1]</a>
+Stijn van Dongen, Cei Abreu-Goodger and Anton J. Enright.
+<i>Detecting microRNA binding and siRNA off-target effects from expression data</i>.
+</p>
+
+<a name="notes"></a>
+<h2>NOTES</h2>
+<p style="margin-bottom:0" class="asd_par">
+This manual was generated from <b>ZOEM</b> manual macros, <a class="extern" href="http://micans.org/zoem">http://micans.org/zoem</a>.
+</p>
+</body>
+</html>
