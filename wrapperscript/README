@@ -1,0 +1,125 @@
+
+
+
+Dependencies.
+
+   Make sure the following are installed or set to the correct value.
+
+   -  sylamer
+      .  GNU Scientific Library
+
+   -  R
+      .  library(R.utils)
+      .  library(evd)
+
+   -  The 'shebang' (first) lines in syl.maketable.pl and syl.master.sh.
+      These are   #!/usr/local/bin/perl and #!/usr/local/bin/bash.
+      If you run on a mac, you will probably need to change these to
+      #!/usr/bin/perl and #!/usr/bin/bash.
+
+   -  The sylbin setting in the script syl.master.sh. Set this to the appropriate
+      location. The simplest is to simply point it to where you unpacked
+      this bundle.  Via the sylbin variable, the following scripts shipped
+      with this bundle are invoked by syl.master.sh:
+      .  syl.master.sh
+      .  syl.plot.R
+      .  syl.fitevd.R
+      .  syl.maketable.pl
+
+
+Input requirements:
+
+   -  fasta file     (identifiers need to match rank file)
+   -  rank file      (identifiers need to match fasta file)
+   -  seed sequence annotation table
+
+      There can be missing identifiers in either fasta file or rank file, this
+      is not a problem. But obviously, the identifiers need to match. E.g. gene
+      symbols, Ensembl identifiers. Sylamer will report how many it found from
+      the rank file in the fasta file, it is useful to check this.
+
+      The first column of the rank file should contain the identifier. Other
+      columns can be present and will be ignored. The rank file should be sorted
+      in the manner that you want, sylamer will not sort it.
+
+      The annotation table, for now, has to be provided by me. Four versions
+      are shipped with the software, for human, mouse, worm and fly respectively.
+
+
+Synopsis:
+   syl.master.sh will do the following.
+      -  sylamer is run for k=6,7,8.
+      -  Markov correction by default set to 4.
+      -  Plots are made for the top 3 words for each of the two y-axis regions.
+            The file names will contain the string 'hltop' (highlight top).
+      -  Separate plots are made for the top words from the EVD analysis.
+            The file names will contain the string 'hltop' (highlight EVD).
+
+
+syl.master.sh options
+
+   -F             FORCE - IMPORTANT
+                  This option is not on by default. By default, if the script
+                  sees that sylamer has already been run, it will not run it
+                  again.  By default it will not overwrite. With -F it will
+                  overwrite.  I've made this option because normally I want to
+                  rerun to finetune the plots - for that it's not necessary to
+                  rerun sylamer, just to rerun the R plotting code.
+
+                  Please note, if for some reason sylamer did not run correctly the first
+                  time, and you don't use -F, then sylamer will not be run, the R plotting
+                  code may find a corrupted/incomplete file, and you may get
+                  strange errors. Solution: use -F.
+
+   -r rankfile
+   -f fastafile
+   -d output directory
+
+   -S <tag>       e.g. hsa, dre, cel, the 3-letter tags used by mirbase
+   -t table       (provided by stijn, e.g. zebrafish.table, worm.table)
+
+   -m 3           generally not necessary to try, but can sometimes improve plots a bit
+   -m 2
+
+   -W             TURN OFF highlighting of automatically selected words.
+                  These are just the ones with best sylamer score, but could easily
+                  be poly-A-related or low complexity.
+
+   -w EM1         A list of eightmers, separated by commas. Can be just one.
+   -w EM1,EM2
+   -w EM1,EM2,EM3
+
+                  This will highlight all relevant words in relevant plots. E.g. the
+                  two sevenmers will be highlighted that are part of the eightmer.
+                  For the sixmer, only the core sixmer 6(2) and the first sixmer 6(1A)
+                  will be highlighted.
+
+   -E <num>       The number of eightmers to pick from the EVD analysis. Default set to 3.
+
+   -P "plot options" passed to syl.plot.R
+                  For example, -P "--ymin=-25 --max=25" if your results are really good.
+
+
+
+my workflow:
+
+set up command in terminal:
+   syl.master.sh -r mycond1.txt -S mmu -d out_cond1 -f data/mouse.fa -t data/mouse.table
+
+once it works, copy the command to a file, e.g. DO.  Use a different output
+directory for each rankfile I suggest.  DO could look like this:
+
+   syl.master.sh -r mycond1.txt -S mmu -d out_cond1 -f data/mouse.fa -t data/mouse.table
+   syl.master.sh -r mycond2.txt -S mmu -d out_cond2 -f data/mouse.fa -t data/mouse.table
+   syl.master.sh -r mycond3.txt -S mmu -d out_cond3 -f data/mouse.fa -t data/mouse.table
+
+Now, you can type in the terminal/bash
+
+   source DO
+
+Caveat: if there is an error in the first command, all subsequent commands will
+still be attempted.  Not something to worry about, and errors won't be harmful.
+
+
+
+
