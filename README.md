@@ -3,9 +3,9 @@
   Stijn van Dongen, Cei Abreu-Goodger & Anton J. Enright; Nature Methods(2008),
   PMID: [18978784](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2635553/)
 
-  If you have questions or comments about this program please send a message to
-  aje39 at cam dot ac dot uk and cei dot abreu at cinvestav dot mx (science) or
-  stijn at sanger dot ac dot uk (code).
+  If you have questions or comments about this method/program please send a message to
+  aje39 at cam dot ac dot uk and cei dot abreu at ed dot ac dot uk (science) or
+  open an issue or discussion in this repository (code).
 
 # Installation
   You'll need to have GSL (Gnu Scientific Library) installed on your system,
